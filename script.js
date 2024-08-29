@@ -1,22 +1,19 @@
 const gameController = (function () {
-    let boardArray = ["", "", "", "", "", "", "", "", ""];
-    let currentTurn = "X";
+    let boardArray, currentTurn, turnCounter;
 
     // Private function: Returns current turn in form of string ("X" or "O")
     const getCurrentTurn = function () {
         return currentTurn;
     }
 
-    /* Accepts integer that corresponds to position of move on the board:
-    [1, 2, 3]
-    [4, 5, 6]
-    [7, 8, 9]
-    Returns object with integer representing index of current move in the
-    board array and current turn as a string ("X" or "O") */
+    /* Accepts an array that of two integers that correspond to position of move on the board:
+
+    Returns object with the y index, xindexm and current player of the last turn as a string ("X" or "O") */
     const move = function (position) {
-        let moveIndex = position - 1;
-        boardArray[moveIndex] = currentTurn;
-        return { moveIndex, currentTurn }
+        let [xIndex, yIndex] = position;
+        boardArray[yIndex][xIndex] = currentTurn;
+        turnCounter++;
+        return { yIndex, xIndex, currentTurn }
     }
 
     // Toggles current turn 
@@ -29,8 +26,16 @@ const gameController = (function () {
     }
 
     // Sets boardArray to 9 empty strings
-    const reset = function () {
-        boardArray = ["", "", "", "", "", "", "", "", ""]
+    const start = function () {
+        boardArray = [
+            ["", "", ""],
+            ["", "", ""],
+            ["", "", ""]
+        ]
+
+        currentTurn = "X"
+
+        turnCounter = 0;
     }
 
     /* Accepts an object (return of move method) containing index of latest (int) 
@@ -42,18 +47,32 @@ const gameController = (function () {
     TODO: insert logic that checks for 3 consecutive matches*/
     const findWinner = function (latestMove) {
         let gameEnd = false;
+        let result = ""
 
-        let { moveIndex, currentTurn } = latestMove;
-        if (moveIndex === 0) {
-            if (boardArray) {
-                //logic to detect 3 same in a row...not sure best way to complete this
-            }
+        let { yIndex, xIndex, currentTurn } = latestMove;
+
+        // test move column for win
+        if (boardArray[0][xIndex] === boardArray[1][xIndex] && boardArray[1][xIndex] === boardArray[2][xIndex]) {
+            gameEnd = true;
+            result = currentTurn;
+        } else if (boardArray[yIndex][0] === boardArray[yIndex][1] && boardArray[yIndex][1] === boardArray[yIndex][2]) {
+            gameEnd = true;
+            result = currentTurn;
+        } else if (boardArray[0][0] === boardArray[1][1] && boardArray[1][1] === boardArray[2][2]) {
+            gameEnd = true;
+            result = currentTurn;
+        } else if (boardArray[0][2] === boardArray[1][1] && boardArray[1][1] === boardArray[2][0]) {
+            gameEnd = true;
+            result = currentTurn;
+        } else if (turnCounter >= 9) {
+            gameEnd = true;
+            result = "tie";
         }
 
         return { gameEnd, result }
     }
 
-    return { getCurrentTurn, move, changeTurn, reset, findWinner }
+    return { getCurrentTurn, move, changeTurn, start, findWinner }
 
 })();
 
