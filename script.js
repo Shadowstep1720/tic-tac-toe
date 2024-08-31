@@ -1,11 +1,12 @@
 const game = (function () {
     let boardArray, currentTurn, turnCounter;
 
-    // Private function: Returns current turn in form of string ("X" or "O")
+    // Returns current turn in form of string ("X" or "O")
     const getCurrentTurn = function () {
         return currentTurn;
     }
 
+    // Returns current boardArray
     const getBoard = function () {
         return boardArray;
     }
@@ -28,7 +29,9 @@ const game = (function () {
         }
     }
 
-    // Sets boardArray to 9 empty strings, currentTurn to "X" and turnCounter to 0
+    /* Sets boardArray to 9 empty strings, currentTurn to "X" and turnCounter to 0
+
+    Returns an object with the new board and current turn ("X by default") */
     const reset = function () {
         boardArray = [
             ["", "", ""],
@@ -43,8 +46,7 @@ const game = (function () {
         return { boardArray, currentTurn }
     }
 
-    /* Accepts an object (return of move method) containing index of latest (int) 
-    and current turn (string)
+    /* Accepts an object (return of move method) containing index of latest move (ints) 
     
     Returns object containing whether the game is over (bool) and result (string: "X", "O", or "tie"). 
     If gameEnd is false, an empty string is returned 
@@ -57,22 +59,28 @@ const game = (function () {
 
         let { yIndex, xIndex } = latestMove;
 
-        // test move column for win
+        // test column for win
         if (boardArray[0][xIndex] === boardArray[1][xIndex] && boardArray[1][xIndex] === boardArray[2][xIndex]) {
             gameEnd = true;
             result = currentTurn;
-        } else if (boardArray[yIndex][0] === boardArray[yIndex][1] && boardArray[yIndex][1] === boardArray[yIndex][2]) {
+        }
+        // test row for win
+        else if (boardArray[yIndex][0] === boardArray[yIndex][1] && boardArray[yIndex][1] === boardArray[yIndex][2]) {
             gameEnd = true;
             result = currentTurn;
         }
+        // test diagonal for win
         else if (boardArray[0][0] === boardArray[1][1] && boardArray[1][1] === boardArray[2][2] && boardArray[1][1] != "") {
             gameEnd = true;
             result = currentTurn;
         }
+        // test anti-diagonal for win
         else if (boardArray[0][2] === boardArray[1][1] && boardArray[1][1] === boardArray[2][0] && boardArray[1][1] != "") {
             gameEnd = true;
             result = currentTurn;
-        } else if (turnCounter >= 9) {
+        }
+        // test for tie
+        else if (turnCounter >= 9) {
             gameEnd = true;
             result = "tie";
         }
@@ -80,6 +88,9 @@ const game = (function () {
         return { gameEnd, result }
     }
 
+    /* Accepts move coordinates and sequences other methods.
+    
+    Returns object with gameBoard, result, and currentTurn */
     const runRound = function (yIndex, xIndex) {
         let lastMove = move(yIndex, xIndex);
         let result = findWinner(lastMove);
