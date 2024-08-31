@@ -1,4 +1,4 @@
-const gameController = (function () {
+const game = (function () {
     let boardArray, currentTurn, turnCounter;
 
     // Private function: Returns current turn in form of string ("X" or "O")
@@ -6,14 +6,17 @@ const gameController = (function () {
         return currentTurn;
     }
 
-    /* Accepts an array that of two integers that correspond to position of move on the board:
+    const getBoard = function () {
+        return boardArray;
+    }
+
+    /* Accepts two integers that correspond to position of move on the board:
 
     Returns object with the y index, xindexm and current player of the last turn as a string ("X" or "O") */
-    const move = function (position) {
-        let [xIndex, yIndex] = position;
-        boardArray[yIndex][xIndex] = currentTurn;
+    const move = function (yIndex, xIndex) {
+        boardArray[yIndex][xIndex] = getCurrentTurn();
         turnCounter++;
-        return { yIndex, xIndex, currentTurn }
+        return { yIndex, xIndex }
     }
 
     // Toggles current turn 
@@ -25,8 +28,8 @@ const gameController = (function () {
         }
     }
 
-    // Sets boardArray to 9 empty strings
-    const start = function () {
+    // Sets boardArray to 9 empty strings, currentTurn to "X" and turnCounter to 0
+    const reset = function () {
         boardArray = [
             ["", "", ""],
             ["", "", ""],
@@ -36,6 +39,8 @@ const gameController = (function () {
         currentTurn = "X"
 
         turnCounter = 0;
+
+        return { boardArray, currentTurn }
     }
 
     /* Accepts an object (return of move method) containing index of latest (int) 
@@ -48,8 +53,9 @@ const gameController = (function () {
     const findWinner = function (latestMove) {
         let gameEnd = false;
         let result = ""
+        let currentTurn = getCurrentTurn()
 
-        let { yIndex, xIndex, currentTurn } = latestMove;
+        let { yIndex, xIndex } = latestMove;
 
         // test move column for win
         if (boardArray[0][xIndex] === boardArray[1][xIndex] && boardArray[1][xIndex] === boardArray[2][xIndex]) {
@@ -58,10 +64,12 @@ const gameController = (function () {
         } else if (boardArray[yIndex][0] === boardArray[yIndex][1] && boardArray[yIndex][1] === boardArray[yIndex][2]) {
             gameEnd = true;
             result = currentTurn;
-        } else if (boardArray[0][0] === boardArray[1][1] && boardArray[1][1] === boardArray[2][2]) {
+        }
+        else if (boardArray[0][0] === boardArray[1][1] && boardArray[1][1] === boardArray[2][2] && boardArray[1][1] != "") {
             gameEnd = true;
             result = currentTurn;
-        } else if (boardArray[0][2] === boardArray[1][1] && boardArray[1][1] === boardArray[2][0]) {
+        }
+        else if (boardArray[0][2] === boardArray[1][1] && boardArray[1][1] === boardArray[2][0] && boardArray[1][1] != "") {
             gameEnd = true;
             result = currentTurn;
         } else if (turnCounter >= 9) {
@@ -72,7 +80,29 @@ const gameController = (function () {
         return { gameEnd, result }
     }
 
-    return { getCurrentTurn, move, changeTurn, start, findWinner }
+    const runRound = function (yIndex, xIndex) {
+        let lastMove = move(yIndex, xIndex);
+        let result = findWinner(lastMove);
+        let gameBoard = getBoard();
+        changeTurn();
+        let currentTurn = getCurrentTurn();
+
+        return { gameBoard, result, currentTurn }
+    }
+
+    return { reset, runRound }
 
 })();
 
+
+
+game.reset()
+
+let test = game.runRound(0, 0);
+console.log(test);
+
+test = game.runRound(1, 1);
+console.log(test);
+
+test = game.reset();
+console.log(test);
